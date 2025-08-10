@@ -398,18 +398,18 @@ Engine:NewStaticConfig("UnitFrames", {
 				},
 				name = {
 					font_object = DiabolicFont_HeaderRegular18,
-					position = { "TOP", 0.5, 32.5 + 18 },
+					position = { "TOP", 0.5, 32.5 + 38 },
 					size = { 346 + 80, 38 }
 				},
 				classification = {
-					font_object = DiabolicFont_HeaderRegular12, -- will also apply to spell name when casting
+					font_object = DiabolicFont_HeaderRegular10, -- will also apply to spell name when casting
 					position = {
-						normal_single = { "TOP", 0.5, -56 +18.5 },
-						normal_double = { "TOP", 0.5, -56 +.5 },
-						elite_single = { "TOP", 0.5, -72 +18.5 },
-						elite_double = { "TOP", 0.5, -72 +.5 },
-						boss_single = { "TOP", 0.5, -72 +18.5 },
-						boss_double = { "TOP", 0.5, -72 +.5 }
+						normal_single = { "TOP", 0.5, 26.5 },
+						normal_double = { "TOP", 0.5, 26.5 },
+						elite_single = { "TOP", 0.5, 26.5 },
+						elite_double = { "TOP", 0.5, 26.5 },
+						boss_single = { "TOP", 0.5, 26.5 },
+						boss_double = { "TOP", 0.5, 26.5 }
 					}
 				},
 				texts = {
@@ -475,7 +475,7 @@ Engine:NewStaticConfig("UnitFrames", {
 					}
 				},
 				auras = {
-					position = { "TOP", 0, -55 },
+					position = { "TOP", 0, -45 },
 					size = { 30*8 + 4*7 + 1, 44*3 },
 					spacingH = 4, 
 					spacingV = 12, 

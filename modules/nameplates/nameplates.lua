@@ -108,8 +108,8 @@ local FRAMELEVEL_TRIVAL_CURRENT, FRAMELEVEL_TRIVIAL_MIN, FRAMELEVEL_TRIVIAL_MAX,
 -- Opacity Settings
 local ALPHA_TARGET = 1 -- For the current target, if any
 local ALPHA_FULL = .7 -- For players when not having a target, also for World Bosses when not targeted
-local ALPHA_LOW = .35 -- For non-targeted players when having a target
-local ALPHA_TRIVIAL = .25 -- For non-targeted trivial mobs
+local ALPHA_LOW = .25 -- For non-targeted players when having a target
+local ALPHA_TRIVIAL = .15 -- For non-targeted trivial mobs
 local ALPHA_MINIMAL = .15 -- For non-targeted NPCs 
 
 -- Update and fading frequencies
@@ -630,7 +630,8 @@ NamePlate_WotLK.ApplyHealthData = function(self)
 	local health = self.Health
 
 	if info.healthColor then
-		health:SetStatusBarColor(unpack(info.healthColor))
+		--health:SetStatusBarColor(unpack(info.healthColor))
+		health:SetStatusBarColor(unpack(C.Orb.HEALTH[1]))
 	end
 
 	if info.unitThreatSituation and info.unitThreatSituation > 0 then
@@ -686,9 +687,9 @@ NamePlate_WotLK.UpdateFrameLevel = function(self)
 		if self:GetFrameLevel() ~= FRAMELEVEL_TARGET then
 			self:SetFrameLevel(FRAMELEVEL_TARGET)
 		end
-		if not healthValue:IsShown() then
-			healthValue:Show()
-		end
+		--if not healthValue:IsShown() then
+			--healthValue:Show()
+		--end
 	else 
 		if self:GetFrameLevel() ~= self.frameLevel then
 			self:SetFrameLevel(self.frameLevel)
@@ -862,8 +863,8 @@ NamePlate_WotLK.HandleBaseFrame = function(self, baseFrame)
 	
 	old.bars.health:SetStatusBarTexture(EMPTY_TEXTURE)
 	old.bars.health:Hide()
-	old.bars.cast:SetStatusBarTexture(EMPTY_TEXTURE)
-	old.bars.cast:Hide()
+	--old.bars.cast:SetStatusBarTexture(EMPTY_TEXTURE)
+	--old.bars.cast:Hide()
 	old.regions.name:Hide()
 	old.regions.threat:SetTexture(nil)
 	old.regions.healthborder:Hide()
@@ -876,13 +877,73 @@ NamePlate_WotLK.HandleBaseFrame = function(self, baseFrame)
 	-- old.regions.eliteicon:SetTexture(nil)
 	UIHider[old.regions.eliteicon] = old.regions.eliteicon:GetParent()
 	old.regions.eliteicon:SetParent(UIHider)
-	old.regions.castborder:SetTexture(nil)
-	old.regions.castshield:SetTexture(nil)
-	old.regions.casticon:SetTexCoord(0, 0, 0, 0)
-	old.regions.casticon:SetWidth(.0001)
+	--old.regions.castborder:SetTexture(nil)
+	--old.regions.castshield:SetTexture(nil)
+	--old.regions.casticon:SetTexCoord(0, 0, 0, 0)
+	--old.regions.casticon:SetWidth(.0001)
 	
 	self.baseFrame = baseFrame
 	self.old = old
+
+	-- DiabolicUI skin for the Blizzard castbar (WotLK)
+	do
+	  local config = self.config
+	  local widget = config.widgets
+	  local tex    = config.textures
+	  local cast   = old.bars.cast
+
+	  -- Use DiabolicUI’s bar texture/color/size/position
+	  cast:SetStatusBarTexture(tex.bar_texture.path)
+	  cast:SetStatusBarColor(unpack(widget.cast.color))
+	  cast:ClearAllPoints()
+	  cast:SetSize(unpack(widget.cast.size))
+	  cast:SetPoint(unpack(widget.cast.place))
+
+	  -- Backdrop
+	  if not cast.DUIBackdrop then
+	    local bg = cast:CreateTexture(nil, "BACKGROUND")
+	    bg:SetSize(unpack(tex.bar_backdrop.size))
+	    bg:SetPoint(unpack(tex.bar_backdrop.position))
+	    bg:SetTexture(tex.bar_backdrop.path)
+	    bg:SetVertexColor(0, 0, 0, 1)
+	    bg:Hide()
+	    cast.DUIBackdrop = bg
+	  end
+
+	  -- Glow
+	  if not cast.DUIGlow then
+	    local glow = cast:CreateTexture(nil, "OVERLAY")
+	    glow:SetSize(unpack(tex.bar_glow.size))
+	    glow:SetPoint(unpack(tex.bar_glow.position))
+	    glow:SetTexture(tex.bar_glow.path)
+	    glow:SetVertexColor(0, 0, 0, .75)
+	    glow:Hide()
+	    cast.DUIGlow = glow
+	  end
+
+	  -- Overlay (subtle pass)
+	  if not cast.DUIOverlay then
+	    local ov = cast:CreateTexture(nil, "ARTWORK")
+	    ov:SetSize(unpack(tex.bar_overlay.size))
+	    ov:SetPoint(unpack(tex.bar_overlay.position))
+	    ov:SetTexture(tex.bar_overlay.path)
+	    ov:SetAlpha(.5)
+	    ov:Hide()
+	    cast.DUIOverlay = ov
+	  end
+
+	  -- Show/hide our visuals with the Blizzard bar
+	  cast:HookScript("OnShow", function(bar)
+	    if bar.DUIBackdrop then bar.DUIBackdrop:Show() end
+	    if bar.DUIGlow    then bar.DUIGlow:Show()    end
+	    if bar.DUIOverlay then bar.DUIOverlay:Show() end
+	  end)
+	  cast:HookScript("OnHide", function(bar)
+	    if bar.DUIBackdrop then bar.DUIBackdrop:Hide() end
+	    if bar.DUIGlow    then bar.DUIGlow:Hide()    end
+	    if bar.DUIOverlay then bar.DUIOverlay:Hide() end
+	  end)
+	end
 
 	return old
 end
@@ -3140,7 +3201,7 @@ or Engine:Wrap(function(self)
 	--SetCVar("bloatnameplates", 0) -- don't change frame size based on threat. it's silly.
 	--SetCVar("repositionfrequency", 1) -- don't skip frames between updates
 	--SetCVar("ShowClassColorInNameplate", 1) -- display class colors -- let the user decide later
-	--SetCVar("ShowVKeyCastbar", 1) -- display castbars
+	SetCVar("ShowVKeyCastbar", 1) -- display castbars
 	--SetCVar("showVKeyCastbarSpellName", 1) -- display spell names on castbars
 	--SetCVar("showVKeyCastbarOnlyOnTarget", 0) -- display castbars only on your current target
 end)

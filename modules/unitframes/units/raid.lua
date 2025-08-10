@@ -30,7 +30,9 @@ local postUpdateHealth = function(health, unit, curHealth, maxHealth, isUnavaila
 		if UnitIsPlayer(unit) then
 			local missingImportantBuff = false
             local importantBuffs = {
-                "Power Word: Fortitude"
+                "Power Word: Fortitude",
+                "Divine Spirit",
+                "Shadow Protection"
             }	
 
             for _, buffName in ipairs(importantBuffs) do
