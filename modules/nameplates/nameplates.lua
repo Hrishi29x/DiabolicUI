@@ -787,6 +787,8 @@ NamePlate_WotLK.OnShow = function(self)
 
 	self.currentAlpha = 0
 	self:SetAlpha(0)
+
+	self:UpdateUnitData()
 	self:UpdateTargetData()
 	self:UpdateAlpha()
 	self:UpdateFrameLevel()
@@ -863,8 +865,8 @@ NamePlate_WotLK.HandleBaseFrame = function(self, baseFrame)
 	
 	old.bars.health:SetStatusBarTexture(EMPTY_TEXTURE)
 	old.bars.health:Hide()
-	--old.bars.cast:SetStatusBarTexture(EMPTY_TEXTURE)
-	--old.bars.cast:Hide()
+	old.bars.cast:SetStatusBarTexture(EMPTY_TEXTURE)
+	old.bars.cast:Hide()
 	old.regions.name:Hide()
 	old.regions.threat:SetTexture(nil)
 	old.regions.healthborder:Hide()
@@ -877,73 +879,13 @@ NamePlate_WotLK.HandleBaseFrame = function(self, baseFrame)
 	-- old.regions.eliteicon:SetTexture(nil)
 	UIHider[old.regions.eliteicon] = old.regions.eliteicon:GetParent()
 	old.regions.eliteicon:SetParent(UIHider)
-	--old.regions.castborder:SetTexture(nil)
-	--old.regions.castshield:SetTexture(nil)
-	--old.regions.casticon:SetTexCoord(0, 0, 0, 0)
-	--old.regions.casticon:SetWidth(.0001)
+	old.regions.castborder:SetTexture(nil)
+	old.regions.castshield:SetTexture(nil)
+	old.regions.casticon:SetTexCoord(0, 0, 0, 0)
+	old.regions.casticon:SetWidth(.0001)
 	
 	self.baseFrame = baseFrame
 	self.old = old
-
-	-- DiabolicUI skin for the Blizzard castbar (WotLK)
-	do
-	  local config = self.config
-	  local widget = config.widgets
-	  local tex    = config.textures
-	  local cast   = old.bars.cast
-
-	  -- Use DiabolicUI’s bar texture/color/size/position
-	  cast:SetStatusBarTexture(tex.bar_texture.path)
-	  cast:SetStatusBarColor(unpack(widget.cast.color))
-	  cast:ClearAllPoints()
-	  cast:SetSize(unpack(widget.cast.size))
-	  cast:SetPoint(unpack(widget.cast.place))
-
-	  -- Backdrop
-	  if not cast.DUIBackdrop then
-	    local bg = cast:CreateTexture(nil, "BACKGROUND")
-	    bg:SetSize(unpack(tex.bar_backdrop.size))
-	    bg:SetPoint(unpack(tex.bar_backdrop.position))
-	    bg:SetTexture(tex.bar_backdrop.path)
-	    bg:SetVertexColor(0, 0, 0, 1)
-	    bg:Hide()
-	    cast.DUIBackdrop = bg
-	  end
-
-	  -- Glow
-	  if not cast.DUIGlow then
-	    local glow = cast:CreateTexture(nil, "OVERLAY")
-	    glow:SetSize(unpack(tex.bar_glow.size))
-	    glow:SetPoint(unpack(tex.bar_glow.position))
-	    glow:SetTexture(tex.bar_glow.path)
-	    glow:SetVertexColor(0, 0, 0, .75)
-	    glow:Hide()
-	    cast.DUIGlow = glow
-	  end
-
-	  -- Overlay (subtle pass)
-	  if not cast.DUIOverlay then
-	    local ov = cast:CreateTexture(nil, "ARTWORK")
-	    ov:SetSize(unpack(tex.bar_overlay.size))
-	    ov:SetPoint(unpack(tex.bar_overlay.position))
-	    ov:SetTexture(tex.bar_overlay.path)
-	    ov:SetAlpha(.5)
-	    ov:Hide()
-	    cast.DUIOverlay = ov
-	  end
-
-	  -- Show/hide our visuals with the Blizzard bar
-	  cast:HookScript("OnShow", function(bar)
-	    if bar.DUIBackdrop then bar.DUIBackdrop:Show() end
-	    if bar.DUIGlow    then bar.DUIGlow:Show()    end
-	    if bar.DUIOverlay then bar.DUIOverlay:Show() end
-	  end)
-	  cast:HookScript("OnHide", function(bar)
-	    if bar.DUIBackdrop then bar.DUIBackdrop:Hide() end
-	    if bar.DUIGlow    then bar.DUIGlow:Hide()    end
-	    if bar.DUIOverlay then bar.DUIOverlay:Hide() end
-	  end)
-	end
 
 	return old
 end
@@ -1818,6 +1760,14 @@ NamePlate.CreateRegions = function(self)
 	CastValue:Hide()
 	Cast.Value = CastValue
 
+	-- Cast icon (Wrath)
+	local CastIcon = CastHolder:CreateTexture(nil, "ARTWORK")
+	CastIcon:SetSize(18, 18)                         -- small, tidy icon
+	CastIcon:SetPoint("RIGHT", Cast, "LEFT", -6, 0)  -- to the left of the bar
+	CastIcon:SetTexCoord(5/64, 59/64, 5/64, 59/64)   -- trim the default icon edges
+	Cast.Icon = CastIcon
+
+
 	-- Cast Name
 	local CastName = Cast:CreateFontString()
 	CastName:SetDrawLayer("OVERLAY")
@@ -1832,11 +1782,13 @@ NamePlate.CreateRegions = function(self)
 		HealthValue:SetAlpha(0) 
 		CastShadow:Show()
 		CastGlow:Show()
+		if Cast.Icon then Cast.Icon:Show() end
 	end)
 	Cast:HookScript("OnHide", function() 
 		HealthValue:SetAlpha(1) 
 		CastShadow:Hide()
 		CastGlow:Hide()
+		if Cast.Icon then Cast.Icon:SetTexture(nil); Cast.Icon:Hide() end
 	end)
 
 
@@ -2243,6 +2195,13 @@ or ENGINE_WOTLK and function(self, event, ...)
 		end
 		if (oldTarget ~= TARGET) then
 			FORCEUPDATE = "TARGET" -- initiate alpha changes
+		end
+
+		-- If the new target was already casting, force-show its castbar.
+		if UnitCastingInfo("target") then
+			self:OnSpellCast("UNIT_SPELLCAST_START", "target")
+		elseif UnitChannelInfo("target") then
+			self:OnSpellCast("UNIT_SPELLCAST_CHANNEL_START", "target")
 		end
 
 	elseif ((event == "PLAYER_REGEN_ENABLED") or (event == "PLAYER_REGEN_DISABLED")) then
@@ -2827,6 +2786,152 @@ or ENGINE_LEGION and function(self, event, ...)
 
 end
 
+or ENGINE_WOTLK and function(self, event, unit)
+	-- Only care about units Wrath exposes cast info for.
+	if not unit or (unit ~= "target" and unit ~= "focus" and unit ~= "mouseover") then
+		return
+	end
+
+	-- Find the visible plate that matches this unit's name.
+	local name = UnitName(unit)
+	if not name then return end
+
+	local plate
+	for baseFrame, p in pairs(self.allPlates) do
+		-- Only consider visible/active plates and match by the cached plate name.
+		if self.visiblePlates[p] and p.info and p.info.name == name then
+			plate = p
+			break
+		end
+	end
+	if not plate then return end
+
+	local castBar = plate.Cast
+	if not CastData[castBar] then
+		CastData[castBar] = {}
+	end
+	local castData = CastData[castBar]
+	if not CastBarPool[plate] then
+		CastBarPool[plate] = castBar
+	end
+
+	if event == "UNIT_SPELLCAST_START" then
+		local spellName, _, text, texture, startTime, endTime, isTradeSkill = UnitCastingInfo(unit)
+		if not spellName then
+			castBar:Hide()
+			return
+		end
+
+		-- Wrath returns ms; convert to seconds.
+		local now = GetTime()
+		startTime = startTime / 1000
+		endTime = endTime / 1000
+
+		castData.casting   = true
+		castData.channeling = nil
+		castData.duration  = now - startTime
+		castData.max       = endTime - startTime
+		castData.delay     = 0
+		castData.tradeskill = isTradeSkill
+		castData.interrupt = nil -- Wrath doesn't give interruptible flag here.
+		castData.unit = unit
+
+		castBar:SetMinMaxValues(0, castData.max)
+		castBar:SetValue(castData.duration)
+
+		if castBar.Name then castBar.Name:SetText(utf8sub(text or spellName, 32, true)) end
+		if castBar.Icon then castBar.Icon:SetTexture(texture) end
+		if castBar.Value then castBar.Value:SetText("") end
+
+		-- Use default Diabolic glow/shadow (already skinned)
+		if castBar.Shield then
+			castBar.Shield:Hide()
+			castBar.Glow:SetVertexColor(0, 0, 0, .75)
+			castBar.Shadow:SetVertexColor(0, 0, 0, 1)
+		end
+
+		castBar:Show()
+
+	elseif event == "UNIT_SPELLCAST_DELAYED" then
+		-- Re-query to adjust timing.
+		local spellName, _, _, _, startTime, endTime = UnitCastingInfo(unit)
+		if not (spellName and castData.casting) then return end
+		startTime = startTime / 1000
+		endTime   = endTime / 1000
+		local now = GetTime()
+		local newDur = now - startTime
+		castData.delay   = (castData.delay or 0) + (newDur - (castData.duration or 0))
+		castData.duration = newDur
+		castData.max      = endTime - startTime
+		castBar:SetMinMaxValues(0, castData.max)
+		castBar:SetValue(castData.duration)
+
+	elseif event == "UNIT_SPELLCAST_STOP" or event == "UNIT_SPELLCAST_FAILED" or event == "UNIT_SPELLCAST_INTERRUPTED" then
+		castData.casting   = nil
+		castData.channeling = nil
+		castData.tradeskill = nil
+		castData.interrupt  = nil
+		castBar:SetValue(0)
+		castBar:Hide()
+		if castBar.Icon then castBar.Icon:SetTexture(nil); castBar.Icon:Hide() end
+
+	elseif event == "UNIT_SPELLCAST_CHANNEL_START" then
+		local name2, _, text, texture, startTime, endTime = UnitChannelInfo(unit)
+		if not name2 then
+			castBar:Hide()
+			return
+		end
+		startTime = startTime / 1000
+		endTime   = endTime / 1000
+
+		castData.casting    = nil
+		castData.channeling = true
+		castData.delay      = 0
+		castData.duration   = endTime - GetTime()         -- channels count down
+		castData.max        = endTime - startTime
+
+		if castBar.Name then castBar.Name:SetText(utf8sub(text or name2, 32, true)) end
+		if castBar.Icon then castBar.Icon:SetTexture(texture) end
+		if castBar.Value then castBar.Value:SetText("") end
+
+		castBar:SetMinMaxValues(0, castData.max)
+		castBar:SetValue(castData.duration)
+		castBar:Show()
+
+	elseif event == "UNIT_SPELLCAST_CHANNEL_UPDATE" then
+		local name2, _, _, _, startTime, endTime = UnitChannelInfo(unit)
+		if not (name2 and castData.duration) then return end
+		local duration = (endTime / 1000) - GetTime()
+		castData.delay    = (castData.delay or 0) + castData.duration - duration
+		castData.duration = duration
+		castData.max      = (endTime - startTime) / 1000
+		castBar:SetMinMaxValues(0, castData.max)
+		castBar:SetValue(duration)
+
+	elseif event == "UNIT_SPELLCAST_CHANNEL_STOP" then
+		if castBar:IsShown() then
+			castData.channeling = nil
+			castData.interrupt  = nil
+			castBar:SetValue(castData.max or 0)
+			castBar:Hide()
+			if castBar.Icon then castBar.Icon:SetTexture(nil); castBar.Icon:Hide() end
+		end
+
+	else
+		-- Fallback: if we get here via manual checks, try to show a cast.
+		if UnitCastingInfo(unit) then
+			return self:OnSpellCast("UNIT_SPELLCAST_START", unit)
+		end
+		if UnitChannelInfo(unit) then
+			return self:OnSpellCast("UNIT_SPELLCAST_CHANNEL_START", unit)
+		end
+		-- Otherwise clear.
+		castData.casting, castData.channeling = nil, nil
+		castBar:SetValue(0)
+		castBar:Hide()
+	end
+end or Module.OnSpellCast
+
 
 
 -- NamePlate Update Cycle
@@ -2835,6 +2940,8 @@ end
 -- Proxy function to allow us to exit the update by returning,
 -- but still continue looping through the remaining castbars, if any!
 Module.UpdateCastBar = function(self, castBar, unit, castData, elapsed)
+	
+	unit = unit or (castData and castData.unit)
 	if (not UnitExists(unit)) then 
 		castData.casting = nil
 		castData.castID = nil
@@ -2954,6 +3061,10 @@ or ENGINE_WOTLK and function(self, elapsed)
 	-- If the number of children in the WorldFrame 
 	--  is different from the number we have stored, 
 	-- we parse the children to check for new NamePlates.
+	for owner, castBar in pairs(CastBarPool) do
+		self:UpdateCastBar(castBar, owner.unit, CastData[castBar], elapsed)
+	end
+
 	local numChildren = select("#", self.worldFrame:GetChildren())
 	if (WORLDFRAME_CHILDREN ~= numChildren) then
 		-- Localizing even more to reduce the load when entering large scale raids
@@ -3293,6 +3404,16 @@ Module.OnEnable = function(self)
 		-- Scale Changes
 		self:RegisterEvent("DISPLAY_SIZE_CHANGED", "OnEvent")
 		self:RegisterEvent("UI_SCALE_CHANGED", "OnEvent")
+
+		-- Castbars (Wrath)
+		self:RegisterEvent("UNIT_SPELLCAST_START", "OnSpellCast")
+		self:RegisterEvent("UNIT_SPELLCAST_FAILED", "OnSpellCast")
+		self:RegisterEvent("UNIT_SPELLCAST_STOP", "OnSpellCast")
+		self:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED", "OnSpellCast")
+		self:RegisterEvent("UNIT_SPELLCAST_DELAYED", "OnSpellCast")
+		self:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START", "OnSpellCast")
+		self:RegisterEvent("UNIT_SPELLCAST_CHANNEL_UPDATE", "OnSpellCast")
+		self:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP", "OnSpellCast")
 	end
 
 end
