@@ -108,9 +108,9 @@ local FRAMELEVEL_TRIVAL_CURRENT, FRAMELEVEL_TRIVIAL_MIN, FRAMELEVEL_TRIVIAL_MAX,
 -- Opacity Settings
 local ALPHA_TARGET = 1 -- For the current target, if any
 local ALPHA_FULL = .7 -- For players when not having a target, also for World Bosses when not targeted
-local ALPHA_LOW = .25 -- For non-targeted players when having a target
-local ALPHA_TRIVIAL = .15 -- For non-targeted trivial mobs
-local ALPHA_MINIMAL = .15 -- For non-targeted NPCs 
+local ALPHA_LOW = .35 -- For non-targeted players when having a target
+local ALPHA_TRIVIAL = .25 -- For non-targeted trivial mobs
+local ALPHA_MINIMAL = .01 -- For non-targeted NPCs
 
 -- Update and fading frequencies
 local HZ = 1/30
@@ -665,8 +665,10 @@ NamePlate_WotLK.UpdateAlpha = function(self)
 				self.targetAlpha = ALPHA_TARGET
 			elseif info.isPlayer then
 				self.targetAlpha = ALPHA_LOW
-			else
+			elseif info.isFriendly then
 				self.targetAlpha = ALPHA_MINIMAL 
+			else
+				self.targetAlpha = ALPHA_TRIVIAL
 			end
 		elseif info.isPlayer then
 			self.targetAlpha = ALPHA_FULL 
