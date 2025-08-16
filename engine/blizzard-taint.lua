@@ -26,8 +26,8 @@ local GetBuildInfo = _G.GetBuildInfo
 local IsAddOnLoaded = _G.IsAddOnLoaded
 local SetCVar = _G.SetCVar
 
--- Retrive the current game client version
-local BUILD = tonumber((select(2, GetBuildInfo()))) 
+-- Retrive the current game client version (default to WOTLK)
+local BUILD = tonumber((select(2, GetBuildInfo()))) or 12340
 
 -- Shortcuts to identify client versions
 local BFA 			= BUILD >= 26788 -- 8.0.1

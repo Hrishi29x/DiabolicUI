@@ -2,8 +2,8 @@
 -- WoW API
 local blizzardCollectgarbage = _G.collectgarbage
 
--- Retrive the current game client version
-local BUILD = tonumber((select(2, GetBuildInfo()))) 
+-- Retrive the current game client version (default to WOTLK)
+local BUILD = tonumber((select(2, GetBuildInfo()))) or 12340
 
 -- Shortcuts to identify client versions
 local LEGION_730 = BUILD >= 24500 

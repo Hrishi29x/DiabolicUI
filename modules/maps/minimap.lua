@@ -474,20 +474,14 @@ Module.AlignMinimap = function(self)
 	mapContent:SetScript("OnMouseWheel", onMouseWheel)
 	mapContent:SetScript("OnMouseUp", onMouseUp)
 
-	-- Getting dead tired of the random resizes.
-	--
-	-- 2017-06-28-1936: 
-	-- Still happening. No idea why.
-	-- It might be that the map isn't fully loaded 
-	-- or not properly reacting to sizing events too early
-	-- in the loading process. So we have to delay all of this. (?) 
-	--mapContent.SetSize = function() end
-	--mapContent.SetWidth = function() end
-	--mapContent.SetHeight = function() end
-	--mapContent.SetParent = function() end
-	--mapContent.SetPoint = function() end
-	--mapContent.SetAllPoints = function() end
-	--mapContent.ClearAllPoints = function() end
+	-- Getting dead tired of the random resizes. 
+	mapContent.SetSize = function() end
+	mapContent.SetWidth = function() end
+	mapContent.SetHeight = function() end
+	mapContent.SetParent = function() end
+	mapContent.SetPoint = function() end
+	mapContent.SetAllPoints = function() end
+	mapContent.ClearAllPoints = function() end
 end
 
 Module.InitMap = function(self)
