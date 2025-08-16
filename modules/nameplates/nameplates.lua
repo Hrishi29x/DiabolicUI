@@ -650,7 +650,9 @@ NamePlate_WotLK.ApplyHealthData = function(self)
 
 	health:SetMinMaxValues(0, info.healthMax)
 	health:SetValue(info.health)
-	health.Value:SetFormattedText("( %s / %s )", abbreviateNumber(info.health), abbreviateNumber(info.healthMax))
+	
+	health.Value:SetText(self.info and self.info.name or "")
+	--health.Value:SetFormattedText("( %s / %s )", abbreviateNumber(info.health), abbreviateNumber(info.healthMax))
 end
 
 NamePlate_WotLK.UpdateAlpha = function(self)
@@ -664,14 +666,14 @@ NamePlate_WotLK.UpdateAlpha = function(self)
 			if info.isTarget then
 				self.targetAlpha = ALPHA_TARGET
 			elseif info.isPlayer then
-				self.targetAlpha = ALPHA_MINIMAL
+				self.targetAlpha = ALPHA_FULL
 			elseif info.isFriendly then
 				self.targetAlpha = ALPHA_MINIMAL 
 			else
 				self.targetAlpha = ALPHA_TRIVIAL
 			end
 		elseif info.isPlayer then
-			self.targetAlpha = ALPHA_MINIMAL 
+			self.targetAlpha = ALPHA_FULL 
 		elseif info.isFriendly then
 			self.targetAlpha = ALPHA_MINIMAL
 		else
@@ -689,15 +691,15 @@ NamePlate_WotLK.UpdateFrameLevel = function(self)
 		if self:GetFrameLevel() ~= FRAMELEVEL_TARGET then
 			self:SetFrameLevel(FRAMELEVEL_TARGET)
 		end
-		--if not healthValue:IsShown() then
-			--healthValue:Show()
-		--end
+		if not healthValue:IsShown() then
+			healthValue:Show()
+		end
 	else 
 		if self:GetFrameLevel() ~= self.frameLevel then
 			self:SetFrameLevel(self.frameLevel)
 		end
-		if healthValue:IsShown() then
-			healthValue:Hide()
+		if not healthValue:IsShown() then
+			healthValue:Show()
 		end
 	end	
 end
