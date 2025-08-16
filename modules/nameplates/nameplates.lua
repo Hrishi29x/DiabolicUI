@@ -666,11 +666,11 @@ NamePlate_WotLK.UpdateAlpha = function(self)
 			if info.isTarget then
 				self.targetAlpha = ALPHA_TARGET
 			elseif info.isPlayer then
-				self.targetAlpha = ALPHA_FULL
+				self.targetAlpha = ALPHA_LOW
 			elseif info.isFriendly then
 				self.targetAlpha = ALPHA_MINIMAL 
 			else
-				self.targetAlpha = ALPHA_TRIVIAL
+				self.targetAlpha = ALPHA_FULL
 			end
 		elseif info.isPlayer then
 			self.targetAlpha = ALPHA_FULL 
