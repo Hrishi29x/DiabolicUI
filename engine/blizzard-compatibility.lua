@@ -32,8 +32,8 @@ local type = type
 -- For the sake of speed, we put the WoW API locals within 
 -- the parent namespace of whatever functions are using them. 
 
--- Retrive the current game client version
-local BUILD = tonumber((select(2, GetBuildInfo()))) 
+-- Retrive the current game client version (default to WOTLK)
+local BUILD = tonumber((select(2, GetBuildInfo()))) or 12340
 
 -- Shortcuts to identify client versions
 local ENGINE_LEGION_730 	= BUILD >= 24500 -- 7.3.0 

@@ -105,8 +105,8 @@ local dependencies = {} -- table holding module/widget/handler dependencies
 -------------------------------------------------------------
 -- Flags and other values meant to be read-only
 -------------------------------------------------------------
-local PATCH, BUILD = GetBuildInfo() -- current game client build
-BUILD = tonumber(BUILD)
+local PATCH, BUILD = GetBuildInfo() -- current game client build (default to WOTLK)
+BUILD = tonumber(BUILD) or 12340
 
 local INCOMBAT = UnitAffectingCombat("player") -- flag to track combat status
 local INLOCKDOWN = InCombatLockdown() -- flag to track combat lockdown status
