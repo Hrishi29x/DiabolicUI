@@ -14,7 +14,7 @@ Engine:NewStaticConfig("NamePlates", {
 			place = { "TOPLEFT", 0, 0 },
 			value = {
 				place = { "BOTTOM", 0, 8+6 },
-				fontObject = DiabolicFont_HeaderBold10,
+				fontObject = DiabolicFont_SansBold10,
 				color = { C.General.Prefix[1], C.General.Prefix[2], C.General.Prefix[3] }
 			}
 		},
@@ -24,7 +24,7 @@ Engine:NewStaticConfig("NamePlates", {
 			color = { .5, .5, 1 }, 
 			name = {
 				place = { "BOTTOM", 0, 26 },
-				fontObject = DiabolicFont_HeaderBold10,
+				fontObject = DiabolicFont_SansBold10,
 				color = { C.General.Prefix[1], C.General.Prefix[2], C.General.Prefix[3] }
 			},
 			icon = {

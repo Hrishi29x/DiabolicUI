@@ -650,7 +650,10 @@ NamePlate_WotLK.ApplyHealthData = function(self)
 
 	health:SetMinMaxValues(0, info.healthMax)
 	health:SetValue(info.health)
-	
+
+	health.Value:SetFont(select(1, health.Value:GetFont()), select(2, health.Value:GetFont()), "OUTLINE")
+
+	health.Value:SetTextColor(unpack(info.healthColor))
 	health.Value:SetText(self.info and self.info.name or "")
 	--health.Value:SetFormattedText("( %s / %s )", abbreviateNumber(info.health), abbreviateNumber(info.healthMax))
 end
